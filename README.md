@@ -1,4 +1,4 @@
-# Climat 2050 : analyse des effets-risques dominants par départements et collectivités
+# Climat 2050 : quels seront les aléas climatiques dominants sur votre territoire ?
 
 Chaleur, sécheresse, feux de forêt, pluies extrêmes : quels départements et quelles intercommunalités de l'Hexagone seront les plus exposés dans une France à **+2,7 °C (2050)** et **+4 °C (2100)** ?
 

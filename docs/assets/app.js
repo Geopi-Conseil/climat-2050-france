@@ -1,4 +1,4 @@
-/* Climat 2050 : analyse des effets-risques dominants par départements et collectivités
+/* Climat 2050 : quels seront les aléas climatiques dominants sur votre territoire ?
    Données : DRIAS TRACC-2023 (Q50), IGN ADMIN EXPRESS. Auteur : Josselin Thonnelier, 2026. */
 (function () {
   'use strict';
