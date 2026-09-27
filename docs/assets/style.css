@@ -109,6 +109,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .bars i:nth-child(1){background:var(--chaleur)}.bars i:nth-child(2){background:var(--hatch)}
 .bars i:nth-child(3){background:var(--feux)}.bars i:nth-child(4){background:var(--pluies)}
 .leaflet-container{font-family:inherit}
+.fond-ign{filter:grayscale(1) brightness(1.12) contrast(.85);opacity:.6}
 .leaflet-control-zoom a{color:var(--ink)!important}
 .leaflet-control-attribution{font-size:10.5px}
 

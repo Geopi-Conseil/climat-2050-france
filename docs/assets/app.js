@@ -49,9 +49,10 @@
       maxBounds: [[39.5, -8.5], [53, 12.5]], maxBoundsViscosity: 0.8, attributionControl: false });
     L.control.attribution({ position: isMobile() ? 'topleft' : 'bottomright', prefix: '<a href="https://leafletjs.com">Leaflet</a>' }).addTo(map);
     L.control.zoom({ position: 'topright' }).addTo(map);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd', maxZoom: 19,
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · © <a href="https://carto.com/attributions">CARTO</a> · DRIAS / Météo-France · IGN'
+    // Fond de carte : Plan IGN (Géoplateforme IGN, sans clé d'API), affiché en gris clair via CSS
+    L.tileLayer('https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}', {
+      maxZoom: 19, maxNativeZoom: 19, className: 'fond-ign',
+      attribution: 'Fond : <a href="https://geoservices.ign.fr/">© IGN Plan IGN</a> · DRIAS / Météo-France · IGN ADMIN EXPRESS'
     }).addTo(map);
     fitFrance();
     map.on('zoomend', function () { renderBars(); updateHint(); });
