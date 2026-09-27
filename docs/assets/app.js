@@ -9,7 +9,7 @@
     { k: 'feux', label: 'Feux de forêt' },
     { k: 'pluies', label: 'Pluies extrêmes' }
   ];
-  // Synthèse nationale (communes) : part de surface et population cumulant ≥ 3 menaces
+  // Synthèse nationale (communes) : part de surface et population cumulant ≥ 3 aléas
   var NATIONAL = {
     '30_27': { s3: 14.1, p3: 14.7 }, '10_27': { s3: 6.1, p3: 8.0 },
     '30_40': { s3: 14.6, p3: 13.5 }, '10_40': { s3: 5.7, p3: 7.3 }
@@ -138,7 +138,7 @@
   function renderKpi() {
     var n = NATIONAL[key()];
     $('#kpi').innerHTML = '<p class="k-title">Hexagone · ' + state.q + ' % les plus exposés · ' + HORIZON[state.h] + '</p>' +
-      '<div><div class="k-val">' + n.s3.toFixed(1).replace('.', ',') + ' %</div><div class="k-lab">du territoire cumule au moins 3 menaces</div></div>' +
+      '<div><div class="k-val">' + n.s3.toFixed(1).replace('.', ',') + ' %</div><div class="k-lab">du territoire cumule au moins 3 aléas</div></div>' +
       '<div><div class="k-val">' + n.p3.toFixed(1).replace('.', ',') + ' M</div><div class="k-lab">d\'habitants concernés</div></div>';
   }
 
@@ -148,10 +148,10 @@
     var p = f.properties, k = key(), v = p.pt[k];
     var dep = state.scale === 'departements';
     var max = Math.max.apply(null, v), dom;
-    if (max < 5) dom = 'Aucune menace ne ressort parmi les ' + state.q + ' % les plus exposés.';
+    if (max < 5) dom = 'Aucun aléa ne ressort parmi les ' + state.q + ' % les plus exposés.';
     else {
       var names = THEMES.filter(function (t, i) { return v[i] >= max - 5 && v[i] >= 5; }).map(function (t) { return t.label.toLowerCase(); });
-      dom = 'Menace' + (names.length > 1 ? 's' : '') + ' dominante' + (names.length > 1 ? 's' : '') + ' : <b>' + names.join(', ') + '</b>';
+      dom = 'Aléa' + (names.length > 1 ? 's' : '') + ' dominant' + (names.length > 1 ? 's' : '') + ' : <b>' + names.join(', ') + '</b>';
     }
     el.innerHTML = '<h2>' + esc(p.n) + '</h2>' +
       '<p class="meta">' + (dep ? 'Département ' + esc(p.c) : 'Intercommunalité (EPCI)') + ' · ' + fmt.format(p.p) + ' hab. · ' + HORIZON[state.h] + '</p>' +
@@ -159,9 +159,9 @@
       THEMES.map(function (t, i) {
         return '<li><span>' + t.label + '</span><span class="track"><span class="fill ' + t.k + '" style="width:' + v[i] + '%"></span></span><span class="v">' + v[i] + ' %</span></li>';
       }).join('') + '</ul>' +
-      '<div class="cumul"><div><b>' + p.s2[k] + ' %</b><span>de la surface cumule ≥ 2 menaces</span></div>' +
-      '<div><b>' + p.s3[k] + ' %</b><span>de la surface cumule ≥ 3 menaces</span></div>' +
-      '<div><b>' + p.p3[k] + ' %</b><span>de la population cumule ≥ 3 menaces</span></div></div>' +
+      '<div class="cumul"><div><b>' + p.s2[k] + ' %</b><span>de la surface cumule ≥ 2 aléas</span></div>' +
+      '<div><b>' + p.s3[k] + ' %</b><span>de la surface cumule ≥ 3 aléas</span></div>' +
+      '<div><b>' + p.p3[k] + ' %</b><span>de la population cumule ≥ 3 aléas</span></div></div>' +
       '<p class="dominant">' + dom + '</p>';
   }
 
@@ -273,8 +273,8 @@
   function openTable() {
     var k = key(), dep = state.scale === 'departements';
     $('#tableTitle').textContent = (dep ? 'Départements' : 'EPCI') + ' · ' + state.q + ' % les plus exposés · ' + HORIZON[state.h];
-    $('#tableSub').textContent = 'Part de la surface (%) comprise dans les ' + state.q + ' % de l\'Hexagone les plus exposés, par menace. Cliquez sur un en-tête pour trier.';
-    var cols = ['Territoire', 'Population'].concat(THEMES.map(function (t) { return t.label; })).concat(['≥ 3 menaces (surface)']);
+    $('#tableSub').textContent = 'Part de la surface (%) comprise dans les ' + state.q + ' % de l\'Hexagone les plus exposés, par aléa. Cliquez sur un en-tête pour trier.';
+    var cols = ['Territoire', 'Population'].concat(THEMES.map(function (t) { return t.label; })).concat(['≥ 3 aléas (surface)']);
     var thead = $('#dataTable thead');
     thead.innerHTML = '<tr>' + cols.map(function (c, i) { return '<th scope="col" data-i="' + i + '">' + c + '</th>'; }).join('') + '</tr>';
     thead.querySelectorAll('th').forEach(function (th) {

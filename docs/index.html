@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Climat 2050 : analyse des effets-risques dominants par départements et collectivités</title>
 <meta name="description" content="Chaleur, sécheresse, feux de forêt, pluies extrêmes : part de chaque département et EPCI dans les 30 % et 10 % de l'Hexagone les plus exposés à l'horizon 2050 (+2,7 °C) et 2100 (+4 °C). Données DRIAS TRACC-2023.">
-<meta property="og:title" content="Climat 2050 : à chaque territoire sa menace climatique">
+<meta property="og:title" content="Climat 2050 : l'aléa climatique dominant de chaque territoire">
 <meta property="og:description" content="Carte interactive des départements et EPCI les plus exposés à la chaleur, la sécheresse, aux feux et aux pluies extrêmes (DRIAS TRACC-2023).">
 <meta property="og:image" content="img/visuel_synthese.jpg">
 <meta name="theme-color" content="#ffffff">
@@ -50,7 +50,7 @@
           </div>
         </div>
         <div class="field">
-          <span class="field-label" id="lbl-q">Seuil d'exposition <button class="info" data-tip="On retient, pour chaque menace, la part du territoire national la plus exposée : 30 % (seuil large) ou 10 % (situations extrêmes)." aria-label="Explication du seuil">?</button></span>
+          <span class="field-label" id="lbl-q">Seuil d'exposition <button class="info" data-tip="On retient, pour chaque aléa, la part du territoire national la plus exposée : 30 % (seuil large) ou 10 % (situations extrêmes)." aria-label="Explication du seuil">?</button></span>
           <div class="seg" role="radiogroup" aria-labelledby="lbl-q" data-key="q">
             <button role="radio" aria-checked="true" data-value="30">30 % les plus exposés</button>
             <button role="radio" aria-checked="false" data-value="10">10 %</button>
@@ -81,7 +81,7 @@
 
       <div class="legend" aria-label="Légende">
         <h2>Lire la carte</h2>
-        <p class="legend-intro">Chaque graphique : part de la surface du territoire comprise dans les <strong class="q-label">30 %</strong> de l'Hexagone les plus exposés, menace par menace.</p>
+        <p class="legend-intro">Chaque graphique : part de la surface du territoire comprise dans les <strong class="q-label">30 %</strong> de l'Hexagone les plus exposés, aléa par aléa.</p>
         <ul class="themes">
           <li><span class="sw chaleur"></span><div><b>Chaleur</b><small>jours ≥ 35 °C, nuits tropicales, maximales d'été</small></div></li>
           <li><span class="sw secheresse"></span><div><b>Sécheresse</b><small>jours de sol sec, pluie d'été</small></div></li>
@@ -89,7 +89,7 @@
           <li><span class="sw pluies"></span><div><b>Pluies extrêmes</b><small>pluie max. en 1 jour, jours très pluvieux</small></div></li>
         </ul>
         <div class="scale-demo" aria-hidden="true"><span class="bar"></span><span>100 %</span><span class="zero">0 %</span></div>
-        <h3>Fond : surface cumulant au moins 3 menaces</h3>
+        <h3>Fond : surface cumulant au moins 3 aléas</h3>
         <ul class="ramp" id="ramp"></ul>
         <button class="btn-ghost" id="openTable">Voir les données en tableau</button>
       </div>
@@ -107,7 +107,7 @@
   <div class="wrap">
     <p class="eyebrow">Méthode</p>
     <h2>Comment la carte est-elle construite ?</h2>
-    <p class="lead">Le changement climatique ne frappe pas partout de la même façon. Cette carte montre, pour chaque territoire, <strong>quelles menaces dominent</strong> dans une France réchauffée de +2,7 °C (2050) ou +4 °C (2100), selon la trajectoire de référence pour l'adaptation (TRACC).</p>
+    <p class="lead">Le changement climatique ne frappe pas partout de la même façon. Cette carte montre, pour chaque territoire, <strong>quels aléas dominent</strong> dans une France réchauffée de +2,7 °C (2050) ou +4 °C (2100), selon la trajectoire de référence pour l'adaptation (TRACC).</p>
 
     <ol class="steps">
       <li>
@@ -115,7 +115,7 @@
         <p>Projections <strong>DRIAS</strong> de Météo-France, jeu « TRACC-2023 » : indicateurs annuels moyennés par niveau de réchauffement, <strong>médiane (Q50) de l'ensemble des simulations</strong>, sur la grille SAFRAN de 8 km (8 981 mailles). Trois niveaux sont utilisés : la période de référence 1976-2005, +2,7 °C et +4 °C.</p>
       </li>
       <li>
-        <h3>2. Quatre menaces, huit variables</h3>
+        <h3>2. Quatre aléas, huit variables</h3>
         <div class="theme-cards">
           <article class="tc chaleur"><h4>Chaleur</h4><ul><li>Nombre de jours par an où la température maximale atteint 35 °C ou plus</li><li>Nombre de nuits tropicales (la température ne descend pas sous 20 °C)</li><li>Température maximale moyenne en été (juin à août)</li></ul></article>
           <article class="tc secheresse"><h4>Sécheresse</h4><ul><li>Nombre de jours par an où le sol est sec (indice d'humidité des sols SWI &lt; 0,4)</li><li>Cumul de pluie de juin à août (moins il pleut, plus l'exposition est forte)</li></ul></article>
@@ -128,23 +128,23 @@
         <p>Les mailles DRIAS sont croisées avec les 34 748 communes de l'Hexagone (IGN ADMIN EXPRESS) : chaque commune reçoit la moyenne des mailles qui la recouvrent, <strong>pondérée par la surface</strong>.</p>
       </li>
       <li>
-        <h3>4. Une note de 0 à 100 par menace</h3>
-        <p>Chaque variable est convertie en note de 0 à 100 entre les valeurs les plus faibles et les plus fortes observées en France (percentiles 2 et 98, bornes communes à tous les horizons). La note d'une menace est la moyenne de ses variables.</p>
+        <h3>4. Une note de 0 à 100 par aléa</h3>
+        <p>Chaque variable est convertie en note de 0 à 100 entre les valeurs les plus faibles et les plus fortes observées en France (percentiles 2 et 98, bornes communes à tous les horizons). La note d'un aléa est la moyenne de ses variables.</p>
       </li>
       <li>
         <h3>5. Les territoires les plus exposés : seuils de 30 % et 10 %</h3>
-        <p>Pour chaque menace et chaque horizon, on repère les communes situées dans les <strong>30 %</strong> (ou <strong>10 %</strong>) du territoire national où la note est la plus élevée. Les seuils sont calculés <strong>en surface</strong>, et non en nombre de communes, pour ne pas sur-représenter les régions aux communes nombreuses et petites.</p>
+        <p>Pour chaque aléa et chaque horizon, on repère les communes situées dans les <strong>30 %</strong> (ou <strong>10 %</strong>) du territoire national où la note est la plus élevée. Les seuils sont calculés <strong>en surface</strong>, et non en nombre de communes, pour ne pas sur-représenter les régions aux communes nombreuses et petites.</p>
       </li>
       <li>
         <h3>6. Agrégation par département et par EPCI</h3>
-        <p>Pour chaque département et intercommunalité, on calcule la <strong>part de sa surface</strong> comprise dans ces zones, menace par menace : ce sont les quatre barres des graphiques. Le fond gris indique la part de la surface qui <strong>cumule au moins trois menaces</strong>.</p>
+        <p>Pour chaque département et intercommunalité, on calcule la <strong>part de sa surface</strong> comprise dans ces zones, aléa par aléa : ce sont les quatre barres des graphiques. Le fond gris indique la part de la surface qui <strong>cumule au moins trois aléas</strong>.</p>
       </li>
     </ol>
 
     <div class="callout">
       <h3>Précautions de lecture</h3>
       <ul>
-        <li><strong>Un classement relatif.</strong> Les seuils sont recalculés pour chaque horizon : la carte compare les territoires entre eux. Un territoire « sans barre » n'est pas épargné, il est moins exposé que d'autres. En valeur absolue, toutes les menaces s'aggravent partout.</li>
+        <li><strong>Un classement relatif.</strong> Les seuils sont recalculés pour chaque horizon : la carte compare les territoires entre eux. Un territoire « sans barre » n'est pas épargné, il est moins exposé que d'autres. En valeur absolue, tous les aléas s'aggravent partout.</li>
         <li><strong>Un aléa, pas un risque.</strong> La carte décrit le climat attendu. Elle ne tient compte ni de la végétation (pour les feux), ni de la vulnérabilité des habitants, des bâtiments ou des activités.</li>
         <li><strong>Des moyennes.</strong> Les valeurs sont des moyennes pluriannuelles : une année exceptionnelle (comme l'été 2022) n'y apparaît pas en tant que telle.</li>
         <li><strong>Une résolution de 8 km.</strong> Les effets locaux (îlots de chaleur urbains, relief fin, littoral) sont lissés.</li>
@@ -182,8 +182,8 @@
     </ul>
     <ul class="intro-steps">
       <li>Choisissez l'<b>échelle</b>, le <b>seuil</b> (30 % ou 10 % du territoire les plus exposés) et l'<b>horizon</b> (2050 à +2,7 °C, 2100 à +4 °C).</li>
-      <li>Survolez ou touchez un territoire pour afficher son <b>profil</b> et sa menace dominante.</li>
-      <li>Le <b>fond gris</b> signale les territoires qui cumulent au moins trois menaces.</li>
+      <li>Survolez ou touchez un territoire pour afficher son <b>profil</b> et son aléa dominant.</li>
+      <li>Le <b>fond gris</b> signale les territoires qui cumulent au moins trois aléas.</li>
     </ul>
     <p class="intro-note">La carte compare les territoires entre eux : un territoire sans barre n'est pas épargné, il est moins exposé que d'autres.</p>
     <div class="intro-actions">

@@ -8,9 +8,9 @@ Chaleur, sécheresse, feux de forêt, pluies extrêmes : quels départements et 
 
 ## Ce que montre la carte
 
-Pour chaque département et chaque EPCI, quatre barres indiquent la **part de la surface du territoire** comprise dans les **30 %** (ou **10 %**) de l'Hexagone les plus exposés à chacune des quatre menaces. Le fond gris indique la part de la surface qui **cumule au moins trois menaces**.
+Pour chaque département et chaque EPCI, quatre barres indiquent la **part de la surface du territoire** comprise dans les **30 %** (ou **10 %**) de l'Hexagone les plus exposés à chacun des quatre aléas. Le fond gris indique la part de la surface qui **cumule au moins trois aléas**.
 
-| Menace | Variables DRIAS (TRACC-2023) |
+| Aléa | Variables DRIAS (TRACC-2023) |
 |---|---|
 | Chaleur | jours avec Tx ≥ 35 °C · nuits tropicales (Tn ≥ 20 °C) · température maximale moyenne en été |
 | Sécheresse | jours de sol sec (SWI < 0,4) · cumul de pluie de juin à août (inversé) |
@@ -21,9 +21,9 @@ Pour chaque département et chaque EPCI, quatre barres indiquent la **part de la
 
 1. **Données** : DRIAS / Météo-France, « Quantiles des indicateurs annuels TRACC-2023 moyennés par niveau de réchauffement », médiane (Q50) de l'ensemble des simulations, grille SAFRAN 8 km (8 981 mailles) ; niveaux : référence 1976-2005, France +2 °C, +2,7 °C et +4 °C.
 2. **Mailles → communes** : moyenne des mailles pondérée par la surface d'intersection (34 748 communes, IGN ADMIN EXPRESS COG CARTO).
-3. **Notes 0-100** : chaque variable est normalisée entre ses percentiles 2 et 98 (bornes communes à tous les horizons) ; note d'une menace = moyenne de ses variables.
-4. **Seuils 30 % / 10 %** : pour chaque menace et chaque horizon, communes situées dans les 30 % (10 %) du territoire national les plus exposés, avec des percentiles **pondérés par la surface**.
-5. **Agrégation** : part de la surface de chaque département / EPCI dans ces zones, menace par menace ; part de la surface et de la population cumulant ≥ 2 et ≥ 3 menaces.
+3. **Notes 0-100** : chaque variable est normalisée entre ses percentiles 2 et 98 (bornes communes à tous les horizons) ; note d'un aléa = moyenne de ses variables.
+4. **Seuils 30 % / 10 %** : pour chaque aléa et chaque horizon, communes situées dans les 30 % (10 %) du territoire national les plus exposés, avec des percentiles **pondérés par la surface**.
+5. **Agrégation** : part de la surface de chaque département / EPCI dans ces zones, aléa par aléa ; part de la surface et de la population cumulant ≥ 2 et ≥ 3 aléas.
 
 Détails complets : [`LISEZMOI_methode.md`](LISEZMOI_methode.md) et section « Méthode » de la page.
 

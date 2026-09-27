@@ -5,7 +5,7 @@ A lancer dans la console Python de QGIS après drias_pipeline (étapes 1 à 7) :
 Propriétés exportées (clés courtes pour alléger les fichiers) :
     c = code, n = nom, p = population, a = point d'ancrage du graphique [lon, lat]
     pt[seuil_horizon] = parts de surface (%) [chaleur, sécheresse, feux, pluies] dans les seuil % les plus exposés
-    s2 / s3 = part de la surface cumulant >= 2 / >= 3 menaces ; p3 = part de la population cumulant >= 3 menaces
+    s2 / s3 = part de la surface cumulant >= 2 / >= 3 aléas ; p3 = part de la population cumulant >= 3 aléas
     seuil_horizon : '30_27', '10_27' (France +2,7 °C, 2050), '30_40', '10_40' (France +4 °C, 2100)
 """
 import os, json
