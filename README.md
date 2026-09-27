@@ -69,4 +69,4 @@ Les GeoPackages de travail (~450 Mo), le projet QGIS et les fichiers DRIAS bruts
 - Limites administratives et population : **IGN, ADMIN EXPRESS COG CARTO** (Licence Ouverte Etalab 2.0).
 - Cartographie web : [Leaflet](https://leafletjs.com) (BSD-2-Clause) ; fond de carte © IGN, Plan IGN (Géoplateforme).
 
-Conception et analyse : **Josselin Thonnelier**, [Géopi Conseil](https://github.com/Geopi-Conseil), 2026.
+Conception et analyse : **Josselin Thonnelier**, [Géopi Conseil](https://geopi-conseil.github.io/), 2026.
