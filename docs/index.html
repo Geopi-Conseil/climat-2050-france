@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Climat 2050 – Menaces climatiques par territoire</title>
+<title>Climat 2050 : analyse des effets-risques dominants par départements et collectivités</title>
 <meta name="description" content="Chaleur, sécheresse, feux de forêt, pluies extrêmes : part de chaque département et EPCI dans les 30 % et 10 % de l'Hexagone les plus exposés à l'horizon 2050 (+2,7 °C) et 2100 (+4 °C). Données DRIAS TRACC-2023.">
 <meta property="og:title" content="Climat 2050 : à chaque territoire sa menace climatique">
-<meta property="og:description" content="Carte interactive des départements et EPCI les plus exposés à la chaleur, la sécheresse, aux feux et aux pluies extrêmes – DRIAS TRACC-2023.">
+<meta property="og:description" content="Carte interactive des départements et EPCI les plus exposés à la chaleur, la sécheresse, aux feux et aux pluies extrêmes (DRIAS TRACC-2023).">
 <meta property="og:image" content="img/visuel_synthese.jpg">
-<meta name="theme-color" content="#14213d">
+<meta name="theme-color" content="#ffffff">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='14' width='5' height='15' fill='%23e31a1c'/%3E%3Crect x='10' y='8' width='5' height='21' fill='%23a6761d'/%3E%3Crect x='17' y='18' width='5' height='11' fill='%23ff8c00'/%3E%3Crect x='24' y='4' width='5' height='25' fill='%231f78b4'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,11 +23,12 @@
   <div class="brand">
     <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
     <div>
-      <h1><span class="t-long">Climat 2050 : à chaque territoire sa menace</span><span class="t-short">Climat 2050</span></h1>
-      <p class="tagline">Chaleur, sécheresse, feux, pluies extrêmes – départements et EPCI de l'Hexagone</p>
+      <h1><span class="t-long">Climat 2050 : analyse des effets-risques dominants par départements et collectivités</span><span class="t-short">Climat 2050</span></h1>
+      <p class="tagline">Chaleur, sécheresse, feux de forêt et pluies extrêmes dans l'Hexagone · projections DRIAS TRACC-2023</p>
     </div>
   </div>
   <nav class="nav" aria-label="Navigation principale">
+    <button class="nav-help" id="openIntro" aria-label="Afficher l'aide de lecture">?</button>
     <a href="#carte" class="active">Carte</a>
     <a href="#methode">Méthode</a>
     <a href="#sources">Sources</a>
@@ -158,15 +159,40 @@
     <p class="eyebrow">Sources et crédits</p>
     <h2>Données et outils</h2>
     <ul class="sources">
-      <li><strong>Projections climatiques :</strong> DRIAS, les futurs du climat – Météo-France, jeu TRACC-2023, quantiles des indicateurs annuels moyennés par niveau de réchauffement.</li>
+      <li><strong>Projections climatiques :</strong> DRIAS, les futurs du climat (Météo-France), jeu TRACC-2023, quantiles des indicateurs annuels moyennés par niveau de réchauffement.</li>
       <li><strong>Limites administratives et population :</strong> IGN, ADMIN EXPRESS COG CARTO (Licence Ouverte Etalab 2.0).</li>
-      <li><strong>Traitements :</strong> QGIS 3.40 et Python – code et méthode sur <a href="https://github.com/Geopi-Conseil/climat-2050-france">le dépôt GitHub du projet</a>.</li>
+      <li><strong>Traitements :</strong> QGIS 3.40 et Python ; code et méthode sur <a href="https://github.com/Geopi-Conseil/climat-2050-france">le dépôt GitHub du projet</a>.</li>
       <li><strong>Cartographie web :</strong> Leaflet ; fond de carte © OpenStreetMap contributors, © CARTO.</li>
     </ul>
-    <p class="author">Conception et analyse : <strong>Josselin Thonnelier</strong> – <a href="https://github.com/Geopi-Conseil">Géopi Conseil</a>, 2026.</p>
+    <p class="author">Conception et analyse : <strong>Josselin Thonnelier</strong>, <a href="https://github.com/Geopi-Conseil">Géopi Conseil</a>, 2026.</p>
   </div>
 </section>
 </main>
+
+<dialog id="introDialog" class="intro" aria-labelledby="introTitle">
+  <div class="intro-body">
+    <div class="intro-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <h2 id="introTitle">Que montre cette carte ?</h2>
+    <p>Pour chaque <strong>département</strong> et chaque <strong>intercommunalité (EPCI)</strong>, quatre barres indiquent la part du territoire située dans les zones de l'Hexagone les plus exposées à quatre effets du changement climatique :</p>
+    <ul class="intro-themes">
+      <li><span class="sw chaleur"></span>Chaleur</li>
+      <li><span class="sw secheresse"></span>Sécheresse</li>
+      <li><span class="sw feux"></span>Feux de forêt</li>
+      <li><span class="sw pluies"></span>Pluies extrêmes</li>
+    </ul>
+    <ul class="intro-steps">
+      <li>Choisissez l'<b>échelle</b>, le <b>seuil</b> (30 % ou 10 % du territoire les plus exposés) et l'<b>horizon</b> (2050 à +2,7 °C, 2100 à +4 °C).</li>
+      <li>Survolez ou touchez un territoire pour afficher son <b>profil</b> et sa menace dominante.</li>
+      <li>Le <b>fond gris</b> signale les territoires qui cumulent au moins trois menaces.</li>
+    </ul>
+    <p class="intro-note">La carte compare les territoires entre eux : un territoire sans barre n'est pas épargné, il est moins exposé que d'autres.</p>
+    <div class="intro-actions">
+      <button class="btn-primary" id="closeIntro">Explorer la carte</button>
+      <a href="#methode" class="btn-link" id="introMethode">Lire la méthode</a>
+    </div>
+    <label class="intro-check"><input type="checkbox" id="introHide"> Ne plus afficher ce message</label>
+  </div>
+</dialog>
 
 <dialog id="tableDialog" aria-labelledby="tableTitle">
   <div class="dialog-head">

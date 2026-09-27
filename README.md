@@ -1,4 +1,4 @@
-# Climat 2050 : à chaque territoire sa menace
+# Climat 2050 : analyse des effets-risques dominants par départements et collectivités
 
 Chaleur, sécheresse, feux de forêt, pluies extrêmes : quels départements et quelles intercommunalités de l'Hexagone seront les plus exposés dans une France à **+2,7 °C (2050)** et **+4 °C (2100)** ?
 
@@ -22,7 +22,7 @@ Pour chaque département et chaque EPCI, quatre barres indiquent la **part de la
 1. **Données** : DRIAS / Météo-France, « Quantiles des indicateurs annuels TRACC-2023 moyennés par niveau de réchauffement », médiane (Q50) de l'ensemble des simulations, grille SAFRAN 8 km (8 981 mailles) ; niveaux : référence 1976-2005, France +2 °C, +2,7 °C et +4 °C.
 2. **Mailles → communes** : moyenne des mailles pondérée par la surface d'intersection (34 748 communes, IGN ADMIN EXPRESS COG CARTO).
 3. **Notes 0-100** : chaque variable est normalisée entre ses percentiles 2 et 98 (bornes communes à tous les horizons) ; note d'une menace = moyenne de ses variables.
-4. **Seuils 30 % / 10 %** : pour chaque menace et chaque horizon, communes situées dans les 30 % (10 %) du territoire national les plus exposés — percentiles **pondérés par la surface**.
+4. **Seuils 30 % / 10 %** : pour chaque menace et chaque horizon, communes situées dans les 30 % (10 %) du territoire national les plus exposés, avec des percentiles **pondérés par la surface**.
 5. **Agrégation** : part de la surface de chaque département / EPCI dans ces zones, menace par menace ; part de la surface et de la population cumulant ≥ 2 et ≥ 3 menaces.
 
 Détails complets : [`LISEZMOI_methode.md`](LISEZMOI_methode.md) et section « Méthode » de la page.
@@ -65,8 +65,8 @@ Les GeoPackages de travail (~450 Mo), le projet QGIS et les fichiers DRIAS bruts
 
 ## Sources et crédits
 
-- Projections climatiques : **DRIAS, les futurs du climat – Météo-France** (TRACC-2023).
-- Limites administratives et population : **IGN – ADMIN EXPRESS COG CARTO** (Licence Ouverte Etalab 2.0).
+- Projections climatiques : **DRIAS, les futurs du climat (Météo-France)**, jeu TRACC-2023.
+- Limites administratives et population : **IGN, ADMIN EXPRESS COG CARTO** (Licence Ouverte Etalab 2.0).
 - Cartographie web : [Leaflet](https://leafletjs.com) (BSD-2-Clause) ; fond de carte © OpenStreetMap contributors, © CARTO.
 
-Conception et analyse : **Josselin Thonnelier** – [Géopi Conseil](https://github.com/Geopi-Conseil), 2026.
+Conception et analyse : **Josselin Thonnelier**, [Géopi Conseil](https://github.com/Geopi-Conseil), 2026.

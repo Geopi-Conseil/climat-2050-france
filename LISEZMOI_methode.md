@@ -1,4 +1,4 @@
-# Territoires exposés au changement climatique – DRIAS TRACC-2023
+# Territoires exposés au changement climatique (DRIAS TRACC-2023)
 
 Projet QGIS : `DRIAS_exposition_climat.qgz` (Lambert 93, France métropolitaine)
 

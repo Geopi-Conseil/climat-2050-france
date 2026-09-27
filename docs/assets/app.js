@@ -1,4 +1,4 @@
-/* Climat 2050 – carte des menaces climatiques par territoire
+/* Climat 2050 : analyse des effets-risques dominants par départements et collectivités
    Données : DRIAS TRACC-2023 (Q50), IGN ADMIN EXPRESS. Auteur : Josselin Thonnelier, 2026. */
 (function () {
   'use strict';
@@ -15,7 +15,7 @@
     '30_40': { s3: 14.6, p3: 13.5 }, '10_40': { s3: 5.7, p3: 7.3 }
   };
   var RAMP = { breaks: [5, 25, 50, 75], colors: ['#ffffff', '#efede7', '#dcd8cd', '#c2bdaf', '#a19b8b'],
-               labels: ['< 5 %', '5–25', '25–50', '50–75', '> 75 %'] };
+               labels: ['< 5 %', '5 à 25', '25 à 50', '50 à 75', '> 75 %'] };
   var HORIZON = { '27': '2050 (+2,7 °C)', '40': '2100 (+4 °C)' };
   var EPCI_BARS_ZOOM = 8;
 
@@ -272,7 +272,7 @@
   var sortCol = 6, sortDir = -1;
   function openTable() {
     var k = key(), dep = state.scale === 'departements';
-    $('#tableTitle').textContent = (dep ? 'Départements' : 'EPCI') + ' – ' + state.q + ' % les plus exposés – ' + HORIZON[state.h];
+    $('#tableTitle').textContent = (dep ? 'Départements' : 'EPCI') + ' · ' + state.q + ' % les plus exposés · ' + HORIZON[state.h];
     $('#tableSub').textContent = 'Part de la surface (%) comprise dans les ' + state.q + ' % de l\'Hexagone les plus exposés, par menace. Cliquez sur un en-tête pour trier.';
     var cols = ['Territoire', 'Population'].concat(THEMES.map(function (t) { return t.label; })).concat(['≥ 3 menaces (surface)']);
     var thead = $('#dataTable thead');
@@ -294,8 +294,25 @@
     }
   }
 
+
+  // ---------- fenêtre d'accueil ----------
+  function initIntro() {
+    var dlg = $('#introDialog'), hide = false;
+    try { hide = localStorage.getItem('climat2050_intro_vu') === '1'; } catch (e) { hide = false; }
+    var close = function () {
+      try { if ($('#introHide').checked) localStorage.setItem('climat2050_intro_vu', '1'); } catch (e) { /* stockage indisponible */ }
+      dlg.close();
+    };
+    $('#closeIntro').addEventListener('click', close);
+    $('#introMethode').addEventListener('click', close);
+    dlg.addEventListener('cancel', close);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) close(); });
+    $('#openIntro').addEventListener('click', function () { dlg.showModal(); });
+    if (!hide && !location.hash.match(/methode|sources/)) dlg.showModal();
+  }
+
   // ---------- démarrage ----------
-  initMap(); initControls(); renderKpi(); renderLegend();
+  initMap(); initControls(); initIntro(); renderKpi(); renderLegend();
   Promise.all(['departements', 'epcis'].map(function (n) {
     return fetch('data/' + n + '.geojson').then(function (r) { if (!r.ok) throw new Error(n); return r.json(); }).then(function (j) { data[n] = j; });
   })).then(function () {
