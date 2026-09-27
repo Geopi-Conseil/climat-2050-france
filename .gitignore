@@ -1,0 +1,26 @@
+# Données de travail volumineuses (non versionnées)
+*.gpkg
+*.gpkg-shm
+*.gpkg-wal
+*.qgz
+*.qgs
+*.qgd
+data/drias_brut/
+data/admin/
+
+# Hors périmètre de la publication
+data/comparaison_zones_liberation.json
+exports/comparaison_zones_liberation.png
+exports/textes_cartes.json
+exports/visuel_linkedin_*.png
+*.pptx
+
+# Divers
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+~$*
+
+# Images de travail à la racine
+/*.png

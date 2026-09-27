@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Climat 2050 – Menaces climatiques par territoire</title>
+<meta name="description" content="Chaleur, sécheresse, feux de forêt, pluies extrêmes : part de chaque département et EPCI dans les 30 % et 10 % de l'Hexagone les plus exposés à l'horizon 2050 (+2,7 °C) et 2100 (+4 °C). Données DRIAS TRACC-2023.">
+<meta property="og:title" content="Climat 2050 : à chaque territoire sa menace climatique">
+<meta property="og:description" content="Carte interactive des départements et EPCI les plus exposés à la chaleur, la sécheresse, aux feux et aux pluies extrêmes – DRIAS TRACC-2023.">
+<meta property="og:image" content="img/visuel_synthese.jpg">
+<meta name="theme-color" content="#14213d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='14' width='5' height='15' fill='%23e31a1c'/%3E%3Crect x='10' y='8' width='5' height='21' fill='%23a6761d'/%3E%3Crect x='17' y='18' width='5' height='11' fill='%23ff8c00'/%3E%3Crect x='24' y='4' width='5' height='25' fill='%231f78b4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<a class="skip" href="#methode">Aller à la méthode</a>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <div>
+      <h1><span class="t-long">Climat 2050 : à chaque territoire sa menace</span><span class="t-short">Climat 2050</span></h1>
+      <p class="tagline">Chaleur, sécheresse, feux, pluies extrêmes – départements et EPCI de l'Hexagone</p>
+    </div>
+  </div>
+  <nav class="nav" aria-label="Navigation principale">
+    <a href="#carte" class="active">Carte</a>
+    <a href="#methode">Méthode</a>
+    <a href="#sources">Sources</a>
+  </nav>
+</header>
+
+<main>
+<section id="carte" class="app" aria-label="Carte interactive">
+  <aside class="panel" id="panel" aria-label="Paramètres et détails">
+    <button class="sheet-handle" id="sheetHandle" aria-label="Afficher ou réduire le panneau" aria-expanded="false"><span></span></button>
+
+    <div class="panel-scroll">
+      <div class="controls">
+        <div class="field">
+          <span class="field-label" id="lbl-scale">Échelle</span>
+          <div class="seg" role="radiogroup" aria-labelledby="lbl-scale" data-key="scale">
+            <button role="radio" aria-checked="true" data-value="departements">Départements</button>
+            <button role="radio" aria-checked="false" data-value="epcis">EPCI</button>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label" id="lbl-q">Seuil d'exposition <button class="info" data-tip="On retient, pour chaque menace, la part du territoire national la plus exposée : 30 % (seuil large) ou 10 % (situations extrêmes)." aria-label="Explication du seuil">?</button></span>
+          <div class="seg" role="radiogroup" aria-labelledby="lbl-q" data-key="q">
+            <button role="radio" aria-checked="true" data-value="30">30 % les plus exposés</button>
+            <button role="radio" aria-checked="false" data-value="10">10 %</button>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label" id="lbl-h">Horizon</span>
+          <div class="seg" role="radiogroup" aria-labelledby="lbl-h" data-key="h">
+            <button role="radio" aria-checked="true" data-value="27">2050 · +2,7 °C</button>
+            <button role="radio" aria-checked="false" data-value="40">2100 · +4 °C</button>
+          </div>
+        </div>
+        <div class="field search">
+          <label class="field-label" for="search">Rechercher un territoire</label>
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 3a7.5 7.5 0 0 1 5.96 12.06l4.24 4.24-1.42 1.42-4.24-4.24A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z"/></svg>
+            <input id="search" type="search" list="territoires" placeholder="Ex. Gironde, Métropole de Lyon…" autocomplete="off">
+            <datalist id="territoires"></datalist>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi" id="kpi" aria-live="polite"></div>
+
+      <div class="detail" id="detail" aria-live="polite">
+        <p class="detail-empty">Survolez ou touchez un territoire pour afficher son profil.</p>
+      </div>
+
+      <div class="legend" aria-label="Légende">
+        <h2>Lire la carte</h2>
+        <p class="legend-intro">Chaque graphique : part de la surface du territoire comprise dans les <strong class="q-label">30 %</strong> de l'Hexagone les plus exposés, menace par menace.</p>
+        <ul class="themes">
+          <li><span class="sw chaleur"></span><div><b>Chaleur</b><small>jours ≥ 35 °C, nuits tropicales, maximales d'été</small></div></li>
+          <li><span class="sw secheresse"></span><div><b>Sécheresse</b><small>jours de sol sec, pluie d'été</small></div></li>
+          <li><span class="sw feux"></span><div><b>Feux de forêt</b><small>jours de danger météo d'incendie élevé</small></div></li>
+          <li><span class="sw pluies"></span><div><b>Pluies extrêmes</b><small>pluie max. en 1 jour, jours très pluvieux</small></div></li>
+        </ul>
+        <div class="scale-demo" aria-hidden="true"><span class="bar"></span><span>100 %</span><span class="zero">0 %</span></div>
+        <h3>Fond : surface cumulant au moins 3 menaces</h3>
+        <ul class="ramp" id="ramp"></ul>
+        <button class="btn-ghost" id="openTable">Voir les données en tableau</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="map-wrap">
+    <div id="map" role="region" aria-label="Carte des territoires"></div>
+    <div class="map-hint" id="mapHint" hidden>Zoomez pour afficher les graphiques des EPCI</div>
+    <div class="loader" id="loader"><span></span>Chargement des données…</div>
+  </div>
+</section>
+
+<section id="methode" class="content">
+  <div class="wrap">
+    <p class="eyebrow">Méthode</p>
+    <h2>Comment la carte est-elle construite ?</h2>
+    <p class="lead">Le changement climatique ne frappe pas partout de la même façon. Cette carte montre, pour chaque territoire, <strong>quelles menaces dominent</strong> dans une France réchauffée de +2,7 °C (2050) ou +4 °C (2100), selon la trajectoire de référence pour l'adaptation (TRACC).</p>
+
+    <ol class="steps">
+      <li>
+        <h3>1. Les données climatiques</h3>
+        <p>Projections <strong>DRIAS</strong> de Météo-France, jeu « TRACC-2023 » : indicateurs annuels moyennés par niveau de réchauffement, <strong>médiane (Q50) de l'ensemble des simulations</strong>, sur la grille SAFRAN de 8 km (8 981 mailles). Trois niveaux sont utilisés : la période de référence 1976-2005, +2,7 °C et +4 °C.</p>
+      </li>
+      <li>
+        <h3>2. Quatre menaces, huit variables</h3>
+        <div class="theme-cards">
+          <article class="tc chaleur"><h4>Chaleur</h4><ul><li>Nombre de jours par an où la température maximale atteint 35 °C ou plus</li><li>Nombre de nuits tropicales (la température ne descend pas sous 20 °C)</li><li>Température maximale moyenne en été (juin à août)</li></ul></article>
+          <article class="tc secheresse"><h4>Sécheresse</h4><ul><li>Nombre de jours par an où le sol est sec (indice d'humidité des sols SWI &lt; 0,4)</li><li>Cumul de pluie de juin à août (moins il pleut, plus l'exposition est forte)</li></ul></article>
+          <article class="tc feux"><h4>Feux de forêt</h4><ul><li>Nombre de jours par an où l'Indice Forêt Météo (IFM) atteint 40 ou plus : danger météorologique d'incendie élevé (chaleur, sécheresse, vent)</li></ul></article>
+          <article class="tc pluies"><h4>Pluies extrêmes</h4><ul><li>Pluie maximale tombée en une seule journée dans l'année</li><li>Quantité de pluie quotidienne dépassée seulement 1 jour sur 100 (99<sup>e</sup> centile)</li></ul></article>
+        </div>
+      </li>
+      <li>
+        <h3>3. Des mailles aux communes</h3>
+        <p>Les mailles DRIAS sont croisées avec les 34 748 communes de l'Hexagone (IGN ADMIN EXPRESS) : chaque commune reçoit la moyenne des mailles qui la recouvrent, <strong>pondérée par la surface</strong>.</p>
+      </li>
+      <li>
+        <h3>4. Une note de 0 à 100 par menace</h3>
+        <p>Chaque variable est convertie en note de 0 à 100 entre les valeurs les plus faibles et les plus fortes observées en France (percentiles 2 et 98, bornes communes à tous les horizons). La note d'une menace est la moyenne de ses variables.</p>
+      </li>
+      <li>
+        <h3>5. Les territoires les plus exposés : seuils de 30 % et 10 %</h3>
+        <p>Pour chaque menace et chaque horizon, on repère les communes situées dans les <strong>30 %</strong> (ou <strong>10 %</strong>) du territoire national où la note est la plus élevée. Les seuils sont calculés <strong>en surface</strong>, et non en nombre de communes, pour ne pas sur-représenter les régions aux communes nombreuses et petites.</p>
+      </li>
+      <li>
+        <h3>6. Agrégation par département et par EPCI</h3>
+        <p>Pour chaque département et intercommunalité, on calcule la <strong>part de sa surface</strong> comprise dans ces zones, menace par menace : ce sont les quatre barres des graphiques. Le fond gris indique la part de la surface qui <strong>cumule au moins trois menaces</strong>.</p>
+      </li>
+    </ol>
+
+    <div class="callout">
+      <h3>Précautions de lecture</h3>
+      <ul>
+        <li><strong>Un classement relatif.</strong> Les seuils sont recalculés pour chaque horizon : la carte compare les territoires entre eux. Un territoire « sans barre » n'est pas épargné, il est moins exposé que d'autres. En valeur absolue, toutes les menaces s'aggravent partout.</li>
+        <li><strong>Un aléa, pas un risque.</strong> La carte décrit le climat attendu. Elle ne tient compte ni de la végétation (pour les feux), ni de la vulnérabilité des habitants, des bâtiments ou des activités.</li>
+        <li><strong>Des moyennes.</strong> Les valeurs sont des moyennes pluriannuelles : une année exceptionnelle (comme l'été 2022) n'y apparaît pas en tant que telle.</li>
+        <li><strong>Une résolution de 8 km.</strong> Les effets locaux (îlots de chaleur urbains, relief fin, littoral) sont lissés.</li>
+        <li><strong>La ressource en eau</strong> n'est pas mesurée ici (voir DRIAS-Eau / Explore2).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="sources" class="content alt">
+  <div class="wrap">
+    <p class="eyebrow">Sources et crédits</p>
+    <h2>Données et outils</h2>
+    <ul class="sources">
+      <li><strong>Projections climatiques :</strong> DRIAS, les futurs du climat – Météo-France, jeu TRACC-2023, quantiles des indicateurs annuels moyennés par niveau de réchauffement.</li>
+      <li><strong>Limites administratives et population :</strong> IGN, ADMIN EXPRESS COG CARTO (Licence Ouverte Etalab 2.0).</li>
+      <li><strong>Traitements :</strong> QGIS 3.40 et Python – code et méthode sur <a href="https://github.com/Geopi-Conseil/climat-2050-france">le dépôt GitHub du projet</a>.</li>
+      <li><strong>Cartographie web :</strong> Leaflet ; fond de carte © OpenStreetMap contributors, © CARTO.</li>
+    </ul>
+    <p class="author">Conception et analyse : <strong>Josselin Thonnelier</strong> – <a href="https://github.com/Geopi-Conseil">Géopi Conseil</a>, 2026.</p>
+  </div>
+</section>
+</main>
+
+<dialog id="tableDialog" aria-labelledby="tableTitle">
+  <div class="dialog-head">
+    <h2 id="tableTitle">Données</h2>
+    <button class="icon-btn" id="closeTable" aria-label="Fermer">✕</button>
+  </div>
+  <p class="dialog-sub" id="tableSub"></p>
+  <div class="table-wrap"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
+</dialog>
+
+<div class="tip" id="tip" role="tooltip" hidden></div>
+
+<script src="assets/vendor/leaflet/leaflet.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
