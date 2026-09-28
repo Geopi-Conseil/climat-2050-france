@@ -7,6 +7,8 @@ Propriétés exportées (clés courtes pour alléger les fichiers) :
     pt[seuil_horizon] = parts de surface (%) [chaleur, sécheresse, feux, pluies] dans les seuil % les plus exposés
     s2 / s3 = part de la surface cumulant >= 2 / >= 3 aléas ; p3 = part de la population cumulant >= 3 aléas
     seuil_horizon : '30_27', '10_27' (France +2,7 °C, 2050), '30_40', '10_40' (France +4 °C, 2100)
+    v[ref|27|40] = valeurs moyennes par an [jours Tx>=35, nuits tropicales, jours sol sec, jours IFM>=40, pluie max 1 jour (mm)]
+    dt[27|40] = réchauffement moyen annuel par rapport à 1976-2005 (°C)
 """
 import os, json
 from qgis.core import (QgsVectorLayer, QgsGeometry, QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsProject)
@@ -14,6 +16,7 @@ import drias_pipeline as dp
 
 THEMES = ['chaleur', 'secheresse', 'feux', 'pluies']
 KEYS = [(q, n) for n in ('p27', 'p40') for q in (30, 10)]
+RAW = ['tx35', 'nt', 'swi04', 'ifm40', 'rx1d']
 
 
 def run(tolerances=(('departement', 500), ('epci', 350))):
@@ -39,7 +42,10 @@ def run(tolerances=(('departement', 500), ('epci', 350))):
                      'pt': {k(q, n): [round(f[f'pt_{t}_top{q}_{n}'] or 0) for t in THEMES] for q, n in KEYS},
                      's3': {k(q, n): round(f[f'surfcum3_top{q}_{n}'] or 0) for q, n in KEYS},
                      's2': {k(q, n): round(f[f'surfcum2_top{q}_{n}'] or 0) for q, n in KEYS},
-                     'p3': {k(q, n): round(f[f'popcum3_top{q}_{n}'] or 0) for q, n in KEYS}}
+                     'p3': {k(q, n): round(f[f'popcum3_top{q}_{n}'] or 0) for q, n in KEYS},
+                     'v': {h: [None if f[f'{r}_{n}'] is None else round(f[f'{r}_{n}'], 1) for r in RAW]
+                           for h, n in (('ref', 'ref'), ('27', 'p27'), ('40', 'p40'))},
+                     'dt': {'27': round(f['dtm_p27'], 1), '40': round(f['dtm_p40'], 1)}}
             feats.append({'type': 'Feature', 'properties': props, 'geometry': json.loads(gs.asJson(3))})
         s = json.dumps({'type': 'FeatureCollection', 'features': feats}, ensure_ascii=False, separators=(',', ':'))
         with open(os.path.join(web, f'{lvl}s.geojson'), 'w', encoding='utf-8') as fh:

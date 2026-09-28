@@ -16,6 +16,15 @@
   };
   var RAMP = { breaks: [5, 25, 50, 75], colors: ['#ffffff', '#efede7', '#dcd8cd', '#c2bdaf', '#a19b8b'],
                labels: ['< 5 %', '5 à 25', '25 à 50', '50 à 75', '> 75 %'] };
+  // Valeurs brutes moyennes par an (moyennes des communes pondérées par la surface)
+  var RAW = [
+    { label: 'Jours ≥ 35 °C', th: 'Jours ≥ 35 °C', theme: 'chaleur', unit: 'j' },
+    { label: 'Nuits tropicales (≥ 20 °C)', th: 'Nuits tropicales', theme: 'chaleur', unit: 'j' },
+    { label: 'Jours de sol sec', th: 'Jours sol sec', theme: 'secheresse', unit: 'j' },
+    { label: 'Jours de danger feu élevé', th: 'Jours danger feu', theme: 'feux', unit: 'j' },
+    { label: 'Pluie max. en une journée', th: 'Pluie max. 1 jour', theme: 'pluies', unit: 'mm' }
+  ];
+  function fnum(v) { if (v === null || v === undefined) return 'n.d.'; return v < 10 ? v.toFixed(1).replace('.', ',') : String(Math.round(v)); }
   var HORIZON = { '27': '2050 (+2,7 °C)', '40': '2100 (+4 °C)' };
   var EPCI_BARS_ZOOM = 8;
 
@@ -163,7 +172,18 @@
       '<div class="cumul"><div><b>' + p.s2[k] + ' %</b><span>de la surface cumule ≥ 2 aléas</span></div>' +
       '<div><b>' + p.s3[k] + ' %</b><span>de la surface cumule ≥ 3 aléas</span></div>' +
       '<div><b>' + p.p3[k] + ' %</b><span>de la population cumule ≥ 3 aléas</span></div></div>' +
-      '<p class="dominant">' + dom + '</p>';
+      '<p class="dominant">' + dom + '</p>' +
+      rawHtml(p);
+  }
+
+  function rawHtml(p) {
+    if (!p.v) return '';
+    var cur = p.v[state.h], ref = p.v.ref;
+    return '<div class="raw"><h3>En moyenne par an, ' + HORIZON[state.h] + '</h3>' +
+      '<p class="raw-sub">Entre parenthèses : période de référence 1976-2005' + (p.dt ? ' · réchauffement moyen : <b>+' + fnum(p.dt[state.h]) + ' °C</b>' : '') + '</p><ul>' +
+      RAW.map(function (r, i) {
+        return '<li><span><i class="sw ' + r.theme + '"></i>' + r.label + '</span><b>' + fnum(cur[i]) + ' ' + r.unit + '</b><small>(' + fnum(ref[i]) + ')</small></li>';
+      }).join('') + '</ul></div>';
   }
 
   function renderLegend() {
@@ -274,23 +294,25 @@
   function openTable() {
     var k = key(), dep = state.scale === 'departements';
     $('#tableTitle').textContent = (dep ? 'Départements' : 'EPCI') + ' · ' + state.q + ' % les plus exposés · ' + HORIZON[state.h];
-    $('#tableSub').textContent = 'Part de la surface (%) comprise dans les ' + state.q + ' % de l\'Hexagone les plus exposés, par aléa. Cliquez sur un en-tête pour trier.';
-    var cols = ['Territoire', 'Population'].concat(THEMES.map(function (t) { return t.label; })).concat(['≥ 3 aléas (surface)']);
+    $('#tableSub').textContent = 'Parts de surface par aléa, puis valeurs moyennes par an à cet horizon (entre parenthèses : période 1976-2005). Cliquez sur un en-tête pour trier ; faites défiler horizontalement si besoin.';
+    var cols = ['Territoire', 'Population'].concat(THEMES.map(function (t) { return t.label; })).concat(['≥ 3 aléas']).concat(RAW.map(function (r) { return r.th + ' (' + r.unit + ')'; }));
     var thead = $('#dataTable thead');
-    thead.innerHTML = '<tr>' + cols.map(function (c, i) { return '<th scope="col" data-i="' + i + '">' + c + '</th>'; }).join('') + '</tr>';
-    thead.querySelectorAll('th').forEach(function (th) {
+    thead.innerHTML = '<tr class="grp"><th colspan="2"></th><th colspan="5" scope="colgroup">Part de la surface dans les ' + state.q + ' % les plus exposés</th><th colspan="5" scope="colgroup" class="grp-raw">Valeurs moyennes par an <small>(1976-2005)</small></th></tr>' +
+      '<tr>' + cols.map(function (c, i) { return '<th scope="col" data-i="' + i + '">' + c + '</th>'; }).join('') + '</tr>';
+    thead.querySelectorAll('th[data-i]').forEach(function (th) {
       th.addEventListener('click', function () { var i = +th.dataset.i; sortDir = (sortCol === i) ? -sortDir : (i === 0 ? 1 : -1); sortCol = i; fillRows(); });
     });
     fillRows();
     $('#tableDialog').showModal();
     function fillRows() {
-      var rows = data[state.scale].features.map(function (f) { var p = f.properties; return [p.n, p.p].concat(p.pt[k]).concat([p.s3[k]]); });
-      rows.sort(function (a, b) { var x = a[sortCol], y = b[sortCol]; return (typeof x === 'string' ? x.localeCompare(y, 'fr') : x - y) * sortDir; });
-      thead.querySelectorAll('th').forEach(function (th) { th.removeAttribute('aria-sort'); if (+th.dataset.i === sortCol) th.setAttribute('aria-sort', sortDir > 0 ? 'ascending' : 'descending'); });
+      var rows = data[state.scale].features.map(function (f) { var p = f.properties; var v = p.v ? p.v[state.h] : [null, null, null, null, null]; return [p.n, p.p].concat(p.pt[k]).concat([p.s3[k]]).concat(v).concat([p.v ? p.v.ref : []]); });
+      rows.sort(function (a, b) { var x = a[sortCol], y = b[sortCol]; if (x === null) return 1; if (y === null) return -1; return (typeof x === 'string' ? x.localeCompare(y, 'fr') : x - y) * sortDir; });
+      thead.querySelectorAll('th[data-i]').forEach(function (th) { th.removeAttribute('aria-sort'); if (+th.dataset.i === sortCol) th.setAttribute('aria-sort', sortDir > 0 ? 'ascending' : 'descending'); });
       $('#dataTable tbody').innerHTML = rows.map(function (r) {
         return '<tr><td>' + esc(r[0]) + '</td><td>' + fmt.format(r[1]) + '</td>' +
           r.slice(2, 6).map(function (v, i) { return '<td><span class="dot sw ' + THEMES[i].k + '"></span>' + v + ' %</td>'; }).join('') +
-          '<td><b>' + r[6] + ' %</b></td></tr>';
+          '<td><b>' + r[6] + ' %</b></td>' +
+          r.slice(7, 12).map(function (v, i) { return '<td class="rawc">' + fnum(v) + ' <small>(' + fnum(r[12][i]) + ')</small></td>'; }).join('') + '</tr>';
       }).join('');
     }
   }

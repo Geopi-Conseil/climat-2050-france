@@ -24,6 +24,7 @@ Pour chaque département et chaque EPCI, quatre barres indiquent la **part de la
 3. **Notes 0-100** : chaque variable est normalisée entre ses percentiles 2 et 98 (bornes communes à tous les horizons) ; note d'un aléa = moyenne de ses variables.
 4. **Seuils 30 % / 10 %** : pour chaque aléa et chaque horizon, communes situées dans les 30 % (10 %) du territoire national les plus exposés, avec des percentiles **pondérés par la surface**.
 5. **Agrégation** : part de la surface de chaque département / EPCI dans ces zones, aléa par aléa ; part de la surface et de la population cumulant ≥ 2 et ≥ 3 aléas.
+6. **Valeurs concrètes** : pour chaque territoire, moyennes annuelles des indicateurs bruts (jours ≥ 35 °C, nuits tropicales, jours de sol sec, jours IFM ≥ 40, pluie max. en 1 jour) pondérées par la surface, à la référence 1976-2005 et aux deux horizons.
 
 Détails complets : [`LISEZMOI_methode.md`](LISEZMOI_methode.md) et section « Méthode » de la page.
 
