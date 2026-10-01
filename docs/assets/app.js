@@ -9,11 +9,8 @@
     { k: 'feux', label: 'Feux de forêt' },
     { k: 'pluies', label: 'Pluies extrêmes' }
   ];
-  // Synthèse nationale (communes) : part de surface et population cumulant ≥ 3 aléas
-  var NATIONAL = {
-    '30_27': { s3: 14.1, p3: 14.7 }, '10_27': { s3: 6.1, p3: 8.0 },
-    '30_40': { s3: 14.6, p3: 13.5 }, '10_40': { s3: 5.7, p3: 7.3 }
-  };
+  // Synthèse nationale des deux modes (chargée depuis data/synthese.json)
+  var SYN = null;
   var RAMP = { breaks: [5, 25, 50, 75], colors: ['#ffffff', '#efede7', '#dcd8cd', '#c2bdaf', '#a19b8b'],
                labels: ['< 5 %', '5 à 25', '25 à 50', '50 à 75', '> 75 %'] };
   // Valeurs brutes moyennes par an (moyennes des communes pondérées par la surface)
@@ -25,29 +22,46 @@
     { label: 'Pluie max. en une journée', th: 'Pluie max. 1 jour', theme: 'pluies', unit: 'mm' }
   ];
   function fnum(v) { if (v === null || v === undefined) return 'n.d.'; return v < 10 ? v.toFixed(1).replace('.', ',') : String(Math.round(v)); }
-  var HORIZON = { '27': '2050 (+2,7 °C)', '40': '2100 (+4 °C)' };
+  var HORIZON = { 'ref': '1976-2005 (référence)', '27': '2050 (+2,7 °C)', '40': '2100 (+4 °C)' };
+  var QDEF = { fixe: '10', relatif: '30' };
   var EPCI_BARS_ZOOM = 8;
 
-  var state = { scale: 'departements', q: '30', h: '27', sel: null };
+  var state = { mode: 'fixe', scale: 'departements', q: '10', h: '27', sel: null };
   var data = {};
   var map, polyLayer, barsLayer, hoverFeature = null;
   var $ = function (s) { return document.querySelector(s); };
   var isMobile = function () { return window.matchMedia('(max-width: 820px)').matches; };
   var key = function () { return state.q + '_' + state.h; };
+  // valeurs du territoire selon le mode de lecture
+  function cur(p) {
+    var k = key();
+    if (state.mode === 'fixe' || state.h === 'ref') return { pt: p.ptr[k], s2: p.sr2[k], s3: p.sr3[k], p3: p.pr3[k] };
+    return { pt: p.pt[k], s2: p.s2[k], s3: p.s3[k], p3: p.p3[k] };
+  }
+  // formulation du seuil selon le mode
+  function seuilTxt(court) {
+    if (state.mode === 'fixe') return court ? 'niveau des ' + state.q + ' % les plus exposés en 1976-2005'
+      : 'au-dessus du niveau qu\'atteignaient, en 1976-2005, les ' + state.q + ' % du territoire les plus exposés';
+    return court ? state.q + ' % les plus exposés à cet horizon' : 'dans les ' + state.q + ' % de l\'Hexagone les plus exposés à cet horizon';
+  }
   var fmt = new Intl.NumberFormat('fr-FR');
 
   // ---------- état dans l'URL (partage) ----------
   (function readUrl() {
     var p = new URLSearchParams(location.search);
+    if (p.get('lecture') === 'territoires') { state.mode = 'relatif'; state.q = '30'; }
     if (p.get('echelle') === 'epci') state.scale = 'epcis';
-    if (p.get('seuil') === '10') state.q = '10';
+    if (p.get('seuil') === '10' || p.get('seuil') === '30') state.q = p.get('seuil');
     if (p.get('horizon') === '2100') state.h = '40';
+    if (p.get('horizon') === '1976-2005') state.h = 'ref';
   })();
   function writeUrl() {
     var p = new URLSearchParams();
+    if (state.mode === 'relatif') p.set('lecture', 'territoires');
     if (state.scale === 'epcis') p.set('echelle', 'epci');
-    if (state.q === '10') p.set('seuil', '10');
+    if (state.q !== QDEF[state.mode]) p.set('seuil', state.q);
     if (state.h === '40') p.set('horizon', '2100');
+    if (state.h === 'ref') p.set('horizon', '1976-2005');
     var qs = p.toString();
     history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
   }
@@ -79,7 +93,7 @@
   function baseStyle(f) {
     var dep = state.scale === 'departements';
     var selected = state.sel && state.sel === f.properties.c;
-    return { fillColor: fillColor(f.properties.s3[key()]), fillOpacity: 0.88,
+    return { fillColor: fillColor(cur(f.properties).s3), fillOpacity: 0.88,
       color: selected ? '#14213d' : (dep ? '#8b909a' : '#a3a8b0'),
       weight: selected ? 3 : (dep ? 0.9 : 0.45), opacity: 1 };
   }
@@ -113,11 +127,11 @@
     if (!barsLayer) barsLayer = L.layerGroup().addTo(map);
     barsLayer.clearLayers();
     if (state.scale === 'epcis' && map.getZoom() < EPCI_BARS_ZOOM) return;
-    var sz = barsSize(), k = key(), b = map.getBounds().pad(0.2);
+    var sz = barsSize(), b = map.getBounds().pad(0.2);
     data[state.scale].features.forEach(function (f) {
       var a = f.properties.a, ll = L.latLng(a[1], a[0]);
       if (state.scale === 'epcis' && !b.contains(ll)) return;
-      var icon = L.divIcon({ className: 'bars-icon', html: barsHtml(f.properties.pt[k], sz[1]), iconSize: sz, iconAnchor: [sz[0] / 2, sz[1]] });
+      var icon = L.divIcon({ className: 'bars-icon', html: barsHtml(cur(f.properties).pt, sz[1]), iconSize: sz, iconAnchor: [sz[0] / 2, sz[1]] });
       L.marker(ll, { icon: icon, interactive: false, keyboard: false }).addTo(barsLayer);
     });
   }
@@ -129,7 +143,7 @@
   // ---------- infobulle ----------
   var tip = $('#tip');
   function tipHtml(f) {
-    var v = f.properties.pt[key()];
+    var v = cur(f.properties).pt;
     return '<h4>' + esc(f.properties.n) + '</h4>' + THEMES.map(function (t, i) {
       return '<div class="row"><span><i class="sw ' + t.k + '"></i>' + t.label + '</span><b>' + v[i] + ' %</b></div>'; }).join('');
   }
@@ -146,49 +160,58 @@
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
   function renderKpi() {
-    var n = NATIONAL[key()];
-    $('#kpi').innerHTML = '<p class="k-title">Hexagone · ' + state.q + ' % les plus exposés · ' + HORIZON[state.h] + '</p>' +
-      '<div><div class="k-val">' + n.s3.toFixed(1).replace('.', ',') + ' %</div><div class="k-lab">du territoire cumule au moins 3 aléas</div></div>' +
-      '<div><div class="k-val">' + n.p3.toFixed(1).replace('.', ',') + ' M</div><div class="k-lab">d\'habitants concernés</div></div>';
+    if (!SYN) { $('#kpi').innerHTML = ''; return; }
+    var n = SYN[state.mode === 'fixe' || state.h === 'ref' ? 'fixe' : 'relatif'][key()];
+    var dec = function (x) { return x.toFixed(1).replace('.', ','); };
+    var html = '<p class="k-title">Hexagone · ' + HORIZON[state.h] + ' · seuil : ' + seuilTxt(true) + '</p>' +
+      '<div><div class="k-val">' + dec(n.s3) + ' %</div><div class="k-lab">du territoire cumule au moins 3 aléas</div></div>' +
+      '<div><div class="k-val">' + dec(n.p3) + ' M</div><div class="k-lab">d\'habitants concernés</div></div>';
+    if (state.mode === 'fixe' && state.h !== 'ref') {
+      html += '<div class="k-themes"><span class="k-lab">Part du territoire concernée, par aléa :</span>' + THEMES.map(function (t, i) {
+        return '<span class="k-chip"><i class="sw ' + t.k + '"></i>' + Math.round(n.st[i]) + ' %</span>'; }).join('') + '</div>';
+    }
+    $('#kpi').innerHTML = html;
   }
 
   function renderDetail(f) {
     var el = $('#detail');
     if (!f) { el.innerHTML = '<p class="detail-empty">Survolez ou touchez un territoire pour afficher son profil.</p>'; return; }
-    var p = f.properties, k = key(), v = p.pt[k];
+    var p = f.properties, c = cur(p), v = c.pt;
     var dep = state.scale === 'departements';
     var max = Math.max.apply(null, v), dom;
-    if (max < 5) dom = 'Aucun aléa ne ressort parmi les ' + state.q + ' % les plus exposés.';
+    if (max < 5) dom = 'Aucun aléa ne dépasse ce seuil (' + seuilTxt(true) + ').';
     else {
       var names = THEMES.filter(function (t, i) { return v[i] >= max - 5 && v[i] >= 5; }).map(function (t) { return t.label.toLowerCase(); });
       dom = 'Aléa' + (names.length > 1 ? 's' : '') + ' dominant' + (names.length > 1 ? 's' : '') + ' : <b>' + names.join(', ') + '</b>';
     }
     el.innerHTML = '<h2>' + esc(p.n) + '</h2>' +
       '<p class="meta">' + (dep ? 'Département ' + esc(p.c) : 'Intercommunalité (EPCI)') + ' · ' + fmt.format(p.p) + ' hab. · ' + HORIZON[state.h] + '</p>' +
-      '<ul class="hbars" aria-label="Part de la surface dans les ' + state.q + ' % les plus exposés">' +
+      '<p class="hb-sub">Part de la surface ' + seuilTxt(false) + '</p>' +
+      '<ul class="hbars" aria-label="Part de la surface ' + seuilTxt(false) + '">' +
       THEMES.map(function (t, i) {
         return '<li><span>' + t.label + '</span><span class="track"><span class="fill ' + t.k + '" style="width:' + v[i] + '%"></span></span><span class="v">' + v[i] + ' %</span></li>';
       }).join('') + '</ul>' +
-      '<div class="cumul"><div><b>' + p.s2[k] + ' %</b><span>de la surface cumule ≥ 2 aléas</span></div>' +
-      '<div><b>' + p.s3[k] + ' %</b><span>de la surface cumule ≥ 3 aléas</span></div>' +
-      '<div><b>' + p.p3[k] + ' %</b><span>de la population cumule ≥ 3 aléas</span></div></div>' +
+      '<div class="cumul"><div><b>' + c.s2 + ' %</b><span>de la surface cumule ≥ 2 aléas</span></div>' +
+      '<div><b>' + c.s3 + ' %</b><span>de la surface cumule ≥ 3 aléas</span></div>' +
+      '<div><b>' + c.p3 + ' %</b><span>de la population cumule ≥ 3 aléas</span></div></div>' +
       '<p class="dominant">' + dom + '</p>' +
       rawHtml(p);
   }
 
   function rawHtml(p) {
     if (!p.v) return '';
-    var cur = p.v[state.h], ref = p.v.ref;
+    var now = p.v[state.h], ref = p.v.ref, isRef = state.h === 'ref';
     return '<div class="raw"><h3>En moyenne par an, ' + HORIZON[state.h] + '</h3>' +
-      '<p class="raw-sub">Entre parenthèses : période de référence 1976-2005' + (p.dt ? ' · réchauffement moyen : <b>+' + fnum(p.dt[state.h]) + ' °C</b>' : '') + '</p><ul>' +
+      (isRef ? '' : '<p class="raw-sub">Entre parenthèses : période de référence 1976-2005' + (p.dt ? ' · réchauffement moyen : <b>+' + fnum(p.dt[state.h]) + ' °C</b>' : '') + '</p>') + '<ul>' +
       RAW.map(function (r, i) {
-        return '<li><span><i class="sw ' + r.theme + '"></i>' + r.label + '</span><b>' + fnum(cur[i]) + ' ' + r.unit + '</b><small>(' + fnum(ref[i]) + ')</small></li>';
+        return '<li><span><i class="sw ' + r.theme + '"></i>' + r.label + '</span><b>' + fnum(now[i]) + ' ' + r.unit + '</b><small>' + (isRef ? '' : '(' + fnum(ref[i]) + ')') + '</small></li>';
       }).join('') + '</ul></div>';
   }
 
   function renderLegend() {
     $('#ramp').innerHTML = RAMP.colors.map(function (c, i) { return '<li><i style="background:' + c + '"></i>' + RAMP.labels[i] + '</li>'; }).join('');
-    document.querySelectorAll('.q-label').forEach(function (e) { e.textContent = state.q + ' %'; });
+    $('#legendIntro').innerHTML = 'Chaque graphique : part de la surface du territoire ' + seuilTxt(false) + ', aléa par aléa.' +
+      (state.mode === 'fixe' ? ' Le seuil est le même pour tous les horizons : les zones s\'étendent à mesure que le climat se réchauffe.' : ' Le seuil est recalculé à chaque horizon : la carte compare les territoires entre eux.');
   }
 
   function fillSearch() {
@@ -215,8 +238,9 @@
     if (f && isMobile()) openSheet(true);
   }
 
+  var syncAll = function () {};
   function refresh(scaleChanged) {
-    renderKpi(); renderLegend();
+    syncAll(); renderKpi(); renderLegend();
     if (scaleChanged) { state.sel = null; renderPolys(); fillSearch(); renderDetail(null); }
     else {
       polyLayer.setStyle(baseStyle);
@@ -228,13 +252,17 @@
 
   // ---------- contrôles ----------
   function initControls() {
+    var syncs = [];
+    syncAll = function () { syncs.forEach(function (f) { f(); }); };
     document.querySelectorAll('.seg').forEach(function (seg) {
       var k = seg.dataset.key;
       var sync = function () { seg.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-checked', String(b.dataset.value === state[k])); }); };
-      sync();
+      syncs.push(sync); sync();
       seg.addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b || b.dataset.value === state[k]) return;
-        state[k] = b.dataset.value; sync(); refresh(k === 'scale');
+        state[k] = b.dataset.value;
+        if (k === 'mode') state.q = QDEF[state.mode];
+        refresh(k === 'scale');
       });
       seg.addEventListener('keydown', function (e) {
         if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
@@ -292,12 +320,12 @@
   // ---------- tableau accessible ----------
   var sortCol = 6, sortDir = -1;
   function openTable() {
-    var k = key(), dep = state.scale === 'departements';
-    $('#tableTitle').textContent = (dep ? 'Départements' : 'EPCI') + ' · ' + state.q + ' % les plus exposés · ' + HORIZON[state.h];
+    var dep = state.scale === 'departements';
+    $('#tableTitle').textContent = (dep ? 'Départements' : 'EPCI') + ' · ' + HORIZON[state.h] + ' · seuil : ' + seuilTxt(true);
     $('#tableSub').textContent = 'Parts de surface par aléa, puis valeurs moyennes par an à cet horizon (entre parenthèses : période 1976-2005). Cliquez sur un en-tête pour trier ; faites défiler horizontalement si besoin.';
     var cols = ['Territoire', 'Population'].concat(THEMES.map(function (t) { return t.label; })).concat(['≥ 3 aléas']).concat(RAW.map(function (r) { return r.th + ' (' + r.unit + ')'; }));
     var thead = $('#dataTable thead');
-    thead.innerHTML = '<tr class="grp"><th colspan="2"></th><th colspan="5" scope="colgroup">Part de la surface dans les ' + state.q + ' % les plus exposés</th><th colspan="5" scope="colgroup" class="grp-raw">Valeurs moyennes par an <small>(1976-2005)</small></th></tr>' +
+    thead.innerHTML = '<tr class="grp"><th colspan="2"></th><th colspan="5" scope="colgroup">Part de la surface ' + seuilTxt(false) + '</th><th colspan="5" scope="colgroup" class="grp-raw">Valeurs moyennes par an <small>(1976-2005)</small></th></tr>' +
       '<tr>' + cols.map(function (c, i) { return '<th scope="col" data-i="' + i + '">' + c + '</th>'; }).join('') + '</tr>';
     thead.querySelectorAll('th[data-i]').forEach(function (th) {
       th.addEventListener('click', function () { var i = +th.dataset.i; sortDir = (sortCol === i) ? -sortDir : (i === 0 ? 1 : -1); sortCol = i; fillRows(); });
@@ -305,7 +333,7 @@
     fillRows();
     $('#tableDialog').showModal();
     function fillRows() {
-      var rows = data[state.scale].features.map(function (f) { var p = f.properties; var v = p.v ? p.v[state.h] : [null, null, null, null, null]; return [p.n, p.p].concat(p.pt[k]).concat([p.s3[k]]).concat(v).concat([p.v ? p.v.ref : []]); });
+      var rows = data[state.scale].features.map(function (f) { var p = f.properties, c = cur(p); var v = p.v ? p.v[state.h] : [null, null, null, null, null]; return [p.n, p.p].concat(c.pt).concat([c.s3]).concat(v).concat([p.v ? p.v.ref : []]); });
       rows.sort(function (a, b) { var x = a[sortCol], y = b[sortCol]; if (x === null) return 1; if (y === null) return -1; return (typeof x === 'string' ? x.localeCompare(y, 'fr') : x - y) * sortDir; });
       thead.querySelectorAll('th[data-i]').forEach(function (th) { th.removeAttribute('aria-sort'); if (+th.dataset.i === sortCol) th.setAttribute('aria-sort', sortDir > 0 ? 'ascending' : 'descending'); });
       $('#dataTable tbody').innerHTML = rows.map(function (r) {
@@ -338,8 +366,8 @@
   initMap(); initControls(); initIntro(); renderKpi(); renderLegend();
   Promise.all(['departements', 'epcis'].map(function (n) {
     return fetch('data/' + n + '.geojson').then(function (r) { if (!r.ok) throw new Error(n); return r.json(); }).then(function (j) { data[n] = j; });
-  })).then(function () {
-    renderPolys(); fillSearch(); renderBars(); updateHint(); renderDetail(null);
+  }).concat([fetch('data/synthese.json').then(function (r) { if (!r.ok) throw new Error('synthese'); return r.json(); }).then(function (j) { SYN = j; })])).then(function () {
+    renderKpi(); renderLegend(); renderPolys(); fillSearch(); renderBars(); updateHint(); renderDetail(null);
     $('#loader').classList.add('done'); setPeek(); if (isMobile()) { map.invalidateSize(); fitFrance(); }
   }).catch(function (e) {
     $('#loader').innerHTML = 'Impossible de charger les données (' + e.message + ').';

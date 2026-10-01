@@ -55,6 +55,26 @@ Pour chaque horizon et chacun des 4 thèmes, on retient les communes situées da
 
 Les seuils sont **relatifs à chaque horizon** : on compare les territoires entre eux, pas le niveau absolu de l'aléa. Les seuils utilisés sont dans `data/seuils_cumuls.json`, la synthèse chiffrée dans `data/synthese_cumuls.json`.
 
+## Deux modes de lecture (carte web)
+Les seuils ci-dessus sont **relatifs à chaque horizon** (mode *Classement*) : la surface retenue reste par construction de 30 % ou 10 % du territoire à chaque horizon. Ce mode répond à la question « quels territoires seront les plus exposés par rapport aux autres ? », mais il ne montre pas l'aggravation dans le temps : un territoire peut « perdre » un aléa entre 2050 et 2100 simplement parce que d'autres territoires le dépassent.
+
+La carte web propose donc un second mode, *Basculement* (affiché par défaut, au seuil de 10 %) :
+- les seuils des 10 % et 30 % les plus exposés sont calculés sur la **période de référence 1976-2005** (`i_{thème}_ref|top{q}` dans `data/seuils_cumuls.json`) ;
+- ces mêmes seuils sont appliqués aux notes de 2050 (+2,7 °C) et 2100 (+4 °C) ; les notes 0-100 ayant des bornes communes à tous les horizons, la comparaison est directe ;
+- une commune ex aequo au minimum de l'indice n'est jamais retenue (même règle que `etape5_cumuls`).
+
+Le calcul est fait par `scripts/seuils_web.py` (Python seul, lecture du GeoPackage en SQLite). Il ajoute aux GeoJSON de la page les champs `ptr`, `sr2`, `sr3`, `pr3` (clés `30_ref`, `10_ref`, `30_27`, `10_27`, `30_40`, `10_40`) et écrit la synthèse nationale des deux modes dans `docs/data/synthese.json`.
+
+Ordres de grandeur, Hexagone, part de la surface cumulant au moins 3 aléas (population concernée) :
+
+| Seuil | 1976-2005 | 2050 (+2,7 °C) | 2100 (+4 °C) |
+|---|---|---|---|
+| Basculement 10 % | 5,8 % (7,7 M hab.) | 20,3 % (16,8 M hab.) | 41,7 % (30,9 M hab.) |
+| Basculement 30 % | 15,4 % (16,9 M hab.) | 59,7 % (45,7 M hab.) | 80,5 % (55,3 M hab.) |
+| Classement 10 % | 5,8 % (7,7 M hab.) | 6,1 % (8,0 M hab.) | 5,6 % (7,3 M hab.) |
+| Classement 30 % | 15,4 % (16,9 M hab.) | 14,1 % (14,7 M hab.) | 14,6 % (13,5 M hab.) |
+
+
 ## Diagrammes par territoire (groupe « Diagrammes par territoire »)
 Un histogramme est placé au centroïde de chaque département ou EPCI. Chaque barre donne, pour un aléa, la part de la surface du territoire située dans les 30 % (ou 10 %) du territoire national les plus exposés. Les champs utilisés sont `pt_{chaleur|secheresse|feux|pluies}_top{30|10}_{p27|p40}` (calcul : `etape7_parts_themes`).
 - Échelle : une barre de 14 mm correspond à 100 % pour les départements, 9 mm pour les EPCI. Les diagrammes des EPCI ne s'affichent qu'en dessous du 1:3 000 000.
